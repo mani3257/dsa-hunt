@@ -14,36 +14,44 @@ const GoalPlan = require("./models/GoalPlan");
 
 const app = express();
 const PORT = process.env.PORT || 5001;
-const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
 const isProduction = process.env.NODE_ENV === "production";
 
-// In production this is a single fixed origin. In dev, also accept
-// localhost:5173 alongside FRONTEND_ORIGIN so you can keep using
-// localhost on your PC while a LAN IP (for phone testing) also works,
-// without editing .env every time you switch devices.
-const ALLOWED_ORIGINS = isProduction
-  ? [FRONTEND_ORIGIN]
-  : [...new Set([FRONTEND_ORIGIN, "http://localhost:5173"])];
-
-// Render/other hosts sit behind a reverse proxy — trust the first hop so
-// secure cookies and req.ip resolve correctly.
+// Trust Render's reverse proxy for secure cookies and client IP resolution
 app.set("trust proxy", 1);
 
 app.disable("x-powered-by");
-app.use(helmet());
 app.use(
-  cors({
-    origin(origin, callback) {
-      // No Origin header (e.g. curl, health checks) — allow.
-      if (!origin || ALLOWED_ORIGINS.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
   })
 );
+
+// Dynamic origin validator: allows configured FRONTEND_ORIGIN, localhost, and any Vercel preview URLs
+const isOriginAllowed = (origin) => {
+  if (!origin) return true; // allow curl, health checks, postman
+  const configuredOrigin = process.env.FRONTEND_ORIGIN;
+  if (configuredOrigin && origin === configuredOrigin) return true;
+  if (origin === "http://localhost:5173" || origin === "http://localhost:3000") return true;
+  if (origin.endsWith(".vercel.app")) return true;
+  return false;
+};
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (isOriginAllowed(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`Origin ${origin} not allowed by CORS`));
+    }
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
+
 app.use(express.json({ limit: "100kb" }));
 app.use(morgan(isProduction ? "combined" : "dev"));
 
@@ -65,14 +73,12 @@ app.use((req, res) =>
 
 app.use((err, req, res, next) => {
   console.error(err);
-  const status = err.status || 500;
+  const status = err.status || (err.message.includes("CORS") ? 403 : 500);
   const message = status < 500 && err.message ? err.message : "Internal server error";
   res.status(status).json({ error: message });
 });
 
 async function repairLegacyIndexes() {
-  // Older versions of DSA Hunt created expiresAt_1 without TTL options.
-  // Drop that legacy index so the current Session schema can recreate it correctly.
   try {
     await Session.collection.dropIndex("expiresAt_1");
     console.log("Removed legacy Session expiresAt index");
@@ -84,9 +90,6 @@ async function repairLegacyIndexes() {
 }
 
 async function repairOrphanedProgress() {
-  // Progress documents from an earlier schema/version can be missing
-  // problemId. They can never match a real problem, so they're dead
-  // weight — remove them rather than crashing every route that reads them.
   const result = await Progress.deleteMany({
     $or: [{ problemId: { $exists: false } }, { problemId: null }],
   });

@@ -17,6 +17,8 @@ const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || "";
 const BACKEND_ORIGIN =
   process.env.BACKEND_ORIGIN || `http://localhost:${process.env.PORT || 5001}`;
 
+const isProduction = process.env.NODE_ENV === "production";
+
 function normalizeEmail(email) {
   return String(email || "").trim().toLowerCase();
 }
@@ -54,19 +56,14 @@ function safeUser(user) {
   };
 }
 
-function cookieOptions(maxAge) {
-  const secure = process.env.NODE_ENV === "production";
-  // In production the frontend (Vercel) and backend (Render) live on
-  // different domains, so the cookie must be SameSite=None + Secure or the
-  // browser silently drops it on cross-site requests. Locally, Lax is fine
-  // and doesn't require HTTPS.
-  return [
-    "HttpOnly",
-    "Path=/",
-    `SameSite=${secure ? "None" : "Lax"}`,
-    `Max-Age=${maxAge}`,
-    secure ? "Secure" : "",
-  ].filter(Boolean).join("; ");
+function getCookieConfig(maxAgeMs) {
+  return {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+    maxAge: maxAgeMs,
+    path: "/",
+  };
 }
 
 async function createSession(userId, res) {
@@ -76,33 +73,20 @@ async function createSession(userId, res) {
 
   await Session.create({ tokenHash, userId, expiresAt });
 
-  res.setHeader(
-    "Set-Cookie",
-    `dsa_session=${encodeURIComponent(rawToken)}; ${cookieOptions(
-      SESSION_DAYS * 86400
-    )}`
-  );
+  res.cookie("dsa_session", rawToken, getCookieConfig(SESSION_DAYS * 86400 * 1000));
 }
 
 function setOAuthState(res, provider, state) {
-  res.setHeader(
-    "Set-Cookie",
-    `oauth_state_${provider}=${encodeURIComponent(state)}; ${cookieOptions(600)}`
-  );
+  res.cookie(`oauth_state_${provider}`, state, getCookieConfig(600 * 1000));
 }
 
 function clearOAuthState(res, provider) {
-  res.append(
-    "Set-Cookie",
-    `oauth_state_${provider}=; ${cookieOptions(0)}`
-  );
+  res.clearCookie(`oauth_state_${provider}`, getCookieConfig(0));
 }
 
 function getCookie(req, name) {
   const cookieHeader = req.headers.cookie || "";
-  const match = cookieHeader.match(
-    new RegExp(`(?:^|;\\s*)${name}=([^;]+)`)
-  );
+  const match = cookieHeader.match(new RegExp(`(?:^|;\\s*)${name}=([^;]+)`));
   return match ? decodeURIComponent(match[1]) : null;
 }
 
@@ -355,9 +339,6 @@ router.get("/github/callback", async (req, res) => {
 
     const email = normalizeEmail(verifiedEmail);
 
-    // OAuth accounts are not restricted to Gmail because the provider
-    // has already verified the email. Gmail-only validation applies to
-    // manually entered email/password authentication.
     let user = await User.findOne({ githubId: String(profile.id) });
 
     if (!user) {
@@ -503,7 +484,7 @@ router.post("/logout", async (req, res) => {
       await Session.deleteOne({ tokenHash });
     }
 
-    res.setHeader("Set-Cookie", `dsa_session=; ${cookieOptions(0)}`);
+    res.clearCookie("dsa_session", getCookieConfig(0));
     res.json({ ok: true });
   } catch (error) {
     console.error("Logout error:", error);
