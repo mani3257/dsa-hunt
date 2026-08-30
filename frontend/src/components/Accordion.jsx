@@ -42,7 +42,16 @@ export default function Accordion({
         </div>
       </button>
 
-      {open && <div className="accordion-body">{children}</div>}
+      {/* Always render children — use CSS to show/hide.
+          This prevents the entire problem list from unmounting and
+          remounting on every keystroke when forceOpen changes. */}
+      <div
+        className="accordion-body"
+        style={{ display: open ? "block" : "none" }}
+        aria-hidden={!open}
+      >
+        {children}
+      </div>
     </section>
   );
 }

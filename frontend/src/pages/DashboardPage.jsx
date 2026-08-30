@@ -210,10 +210,19 @@ export default function DashboardPage() {
         </div>
 
         <div className="sheet-card-grid">
+          <Link to="/corecs" className="sheet-card" style={{ textDecoration: "none" }}>
+            <div>
+              <div className="sheet-card-pending-head">
+                <h3>DBMS</h3>
+                <span className="pending-badge" style={{ background: "rgba(var(--accent-rgb),0.15)", color: "var(--accent)", borderColor: "var(--accent)" }}>36 Q&amp;As</span>
+              </div>
+              <p>Most asked DBMS interview questions.</p>
+            </div>
+          </Link>
           {[
-            { label: "DBMS", desc: "Most asked DBMS interview questions." },
             { label: "Operating Systems", desc: "Most asked OS interview questions." },
             { label: "Computer Networks", desc: "Most asked CN interview questions." },
+            { label: "OOP", desc: "Most asked OOP interview questions." },
           ].map((subject) => (
             <div className="sheet-card sheet-card-pending" key={subject.label}>
               <div>

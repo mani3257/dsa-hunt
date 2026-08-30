@@ -10,6 +10,7 @@ import CalendarPage from "./pages/CalendarPage";
 import RevisionPage from "./pages/RevisionPage";
 import CollectionPage from "./pages/CollectionPage";
 import ProfilePage from "./pages/ProfilePage";
+import CoreCSPage from "./pages/CoreCSPage";
 
 export default function App() {
   return <AuthProvider><Routes>
@@ -25,6 +26,7 @@ export default function App() {
         <Route path="/saved" element={<CollectionPage type="saved"/>}/>
         <Route path="/important" element={<CollectionPage type="important"/>}/>
         <Route path="/profile" element={<ProfilePage/>}/>
+        <Route path="/corecs" element={<CoreCSPage/>}/>
       </Route>
     </Route>
     <Route path="*" element={<Navigate to="/" replace/>}/>

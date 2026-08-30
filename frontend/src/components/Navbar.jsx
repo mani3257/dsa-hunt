@@ -48,8 +48,6 @@ export default function Navbar({ search, setSearch }) {
             ["/", "Dashboard"],
             ["/sheet", "Sheets"],
             ["/roadmap", "Roadmap"],
-            ["/saved", "Saved"],
-            ["/important", "Important"],
           ].map(([path, label]) => (
             <NavLink key={path} to={path} end={path === "/"}>
               {label}

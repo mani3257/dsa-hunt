@@ -28,6 +28,8 @@ const STATUSES = [
 const REVISION_OPTIONS = [
   { value: "", label: "All problems" },
   { value: "due", label: "Needs revision" },
+  { value: "saved", label: "Saved" },
+  { value: "important", label: "Important" },
 ];
 
 export default function SheetPage() {
@@ -41,9 +43,12 @@ export default function SheetPage() {
   const status = params.get("status") || "";
   const revisionFilter = params.get("revision") || "";
 
+  // NOTE: search is intentionally excluded from useProblems params.
+  // Passing search there would trigger a full API refetch on every keystroke.
+  // Instead we fetch all problems for the sheet+difficulty combo and filter
+  // client-side — search is fast enough over the typical sheet sizes (≤250).
   const { problems, setProblems, loading, error, refresh } = useProblems({
     sheet,
-    search,
     difficulty,
   });
 
@@ -79,6 +84,8 @@ export default function SheetPage() {
       if (status && (problem.progress?.status || "todo") !== status) return false;
 
       if (revisionFilter === "due" && !problem.progress?.needsRevision) return false;
+      if (revisionFilter === "saved" && !problem.progress?.saved) return false;
+      if (revisionFilter === "important" && !problem.progress?.important) return false;
 
       if (!query) return true;
 
@@ -132,8 +139,9 @@ export default function SheetPage() {
   }
 
   function handleSearchChange(value) {
+    // Only update local state, not URL.
+    // Pushing to URL triggers useEffect->setSearch->re-render on every keystroke (the refresh bug).
     setSearch(value);
-    updateParam("search", value);
   }
 
   function goToRandomProblem() {
