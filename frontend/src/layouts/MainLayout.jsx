@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import BottomNav from "../components/BottomNav";
+import Sidebar from "../components/Sidebar";
 
 export default function MainLayout() {
   const [search, setSearch] = useState("");
@@ -9,8 +10,6 @@ export default function MainLayout() {
   const isSheet = location.pathname === "/sheet";
 
   useEffect(() => {
-    // Clear the shared search box when leaving the sheet page.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (!isSheet) setSearch("");
   }, [location.pathname, isSheet]);
 
@@ -19,6 +18,7 @@ export default function MainLayout() {
       <Navbar search={search} setSearch={setSearch} />
 
       <div className="app-body">
+        <Sidebar />
         <main className="page-shell">
           <Outlet context={{ search, setSearch }} />
         </main>

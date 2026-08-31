@@ -3587,3 +3587,263 @@ a {
   background: var(--accent);
   color: #0a0806;
 }
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+:root {
+  --sidebar-w: 220px;
+  --sidebar-collapsed-w: 56px;
+}
+
+.app-body {
+  display: flex;
+  min-height: 100vh;
+  padding-top: 62px;
+}
+
+.page-shell {
+  flex: 1;
+  min-width: 0;
+  padding-top: 8px;
+  margin-left: var(--sidebar-w);
+  transition: margin-left 0.22s ease;
+}
+
+.sidebar {
+  position: fixed;
+  top: 62px;
+  left: 0;
+  bottom: 0;
+  width: var(--sidebar-w);
+  background: var(--surface, #161b22);
+  border-right: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  z-index: 90;
+  transition: width 0.22s ease;
+  overflow: hidden;
+}
+
+.sidebar.collapsed {
+  width: var(--sidebar-collapsed-w);
+}
+
+.sidebar.collapsed + .page-shell,
+.sidebar.collapsed ~ * .page-shell {
+  margin-left: var(--sidebar-collapsed-w);
+}
+
+/* make page-shell respond to sibling sidebar */
+.app-body:has(.sidebar.collapsed) .page-shell {
+  margin-left: var(--sidebar-collapsed-w);
+}
+
+.sidebar-inner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 12px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sidebar-nav::-webkit-scrollbar { width: 3px; }
+.sidebar-nav::-webkit-scrollbar-thumb { background: var(--line); border-radius: 2px; }
+
+/* item base */
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+  text-decoration: none;
+  border: none;
+  background: transparent;
+  width: 100%;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+  white-space: nowrap;
+  font-family: inherit;
+  position: relative;
+}
+
+.sidebar-item:hover {
+  background: rgba(255,255,255,0.05);
+  color: #efe9e3;
+}
+
+.sidebar-item.active {
+  background: rgba(var(--accent-rgb, 234,88,12), 0.15);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.sidebar-item.collapsed {
+  justify-content: center;
+  padding: 10px;
+}
+
+.sidebar-item.disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.sidebar-icon { flex-shrink: 0; }
+.sidebar-label { flex: 1; }
+
+.sidebar-soon {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: rgba(255,255,255,0.07);
+  color: var(--muted);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+/* group */
+.sidebar-group { position: relative; }
+.sidebar-group-btn { text-align: left; }
+.sidebar-chevron { flex-shrink: 0; transition: transform 0.18s; }
+
+.sidebar-children {
+  padding-left: 12px;
+  margin-top: 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* flyout on collapsed groups */
+.sidebar-group { position: relative; }
+.sidebar-group:hover .sidebar-flyout { display: flex; }
+
+.sidebar-flyout {
+  display: none;
+  position: absolute;
+  left: calc(var(--sidebar-collapsed-w) + 4px);
+  top: 0;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 8px;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 160px;
+  z-index: 200;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+
+.sidebar-flyout-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  padding: 4px 8px 6px;
+}
+
+.sidebar-flyout-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 7px;
+  font-size: 13px;
+  color: var(--muted);
+  text-decoration: none;
+  transition: background 0.12s, color 0.12s;
+}
+.sidebar-flyout-item:hover { background: rgba(255,255,255,0.07); color: #efe9e3; }
+
+/* toggle btn at bottom */
+.sidebar-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  margin: 8px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.sidebar-toggle:hover { background: rgba(255,255,255,0.05); color: #efe9e3; }
+
+/* =========================================================
+   CODE EDITOR (CodingBasicsPage)
+========================================================= */
+
+.code-editor-wrap {
+  position: relative;
+  margin-top: 6px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+}
+
+.code-editor-ta {
+  width: 100%;
+  background: #100d0a;
+  color: #e8ddd0;
+  font-family: 'Courier New', Consolas, monospace;
+  font-size: 12.5px;
+  line-height: 1.65;
+  padding: 12px 14px;
+  border: none;
+  outline: none;
+  resize: none;
+  overflow: hidden;
+  display: block;
+  min-height: 60px;
+  caret-color: var(--accent);
+}
+
+.code-editor-ta::selection { background: rgba(234,88,12,0.25); }
+
+.code-copy-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+.code-copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* =========================================================
+   RESPONSIVE — hide sidebar below 900px
+========================================================= */
+@media (max-width: 900px) {
+  .sidebar { display: none; }
+  .page-shell { margin-left: 0 !important; }
+  .app-body { padding-top: 62px; }
+}

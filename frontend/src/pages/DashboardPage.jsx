@@ -13,6 +13,7 @@ import {
   MonitorCog,
   RotateCcw,
   Users,
+  Code2,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -26,6 +27,7 @@ const CATEGORY_TILES = [
   { id: "dsa-sheets", label: "DSA Sheets", icon: Blocks, color: "coral" },
   { id: "core-cs", label: "Core CS", icon: Cpu, color: "mint" },
   { id: "hr", label: "HR & Behavioral", icon: Users, color: "amber" },
+  { id: "basic-coding", label: "Basic Coding", icon: Code2, color: "sky" },
   { id: "system-design", label: "System Design", icon: MonitorCog, color: "sky" },
 ];
 
@@ -237,6 +239,7 @@ export default function DashboardPage() {
             <p className="eyebrow">INTERVIEW PREP</p>
             <h2>HR & Behavioral Questions</h2>
           </div>
+          <Users size={20} style={{ color: "var(--muted)" }} />
         </div>
         <div className="sheet-card-grid">
           <Link to="/hr" className="sheet-card" style={{ textDecoration: "none" }}>
@@ -246,6 +249,27 @@ export default function DashboardPage() {
                 <span className="pending-badge" style={{ background: "rgba(var(--accent-rgb),0.15)", color: "var(--accent)", borderColor: "var(--accent)" }}>25 Q&As</span>
               </div>
               <p>Tell me about yourself, strengths, weaknesses, goals, and more.</p>
+            </div>
+          </Link>
+        </div>
+      </section>
+
+      <section className="sheet-library" id="basic-coding">
+        <div className="panel-head">
+          <div>
+            <p className="eyebrow">CODING PRACTICE</p>
+            <h2>Basic Coding Problems</h2>
+          </div>
+          <Code2 size={20} style={{ color: "var(--muted)" }} />
+        </div>
+        <div className="sheet-card-grid">
+          <Link to="/coding/basics" className="sheet-card" style={{ textDecoration: "none" }}>
+            <div>
+              <div className="sheet-card-pending-head">
+                <h3>Strings, Numbers & Arrays</h3>
+                <span className="pending-badge" style={{ background: "rgba(var(--accent-rgb),0.15)", color: "var(--accent)", borderColor: "var(--accent)" }}>40 Problems</span>
+              </div>
+              <p>Java & Python solutions — editable code, copy-paste ready.</p>
             </div>
           </Link>
         </div>

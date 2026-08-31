@@ -15,6 +15,7 @@ import OSPage from "./pages/OSPage";
 import OOPPage from "./pages/OOPPage";
 import CNPage from "./pages/CNPage";
 import HRPage from "./pages/HRPage";
+import CodingBasicsPage from "./pages/CodingBasicsPage";
 
 export default function App() {
   return <AuthProvider><Routes>
@@ -35,6 +36,7 @@ export default function App() {
         <Route path="/corecs/oop" element={<OOPPage/>}/>
         <Route path="/corecs/cn" element={<CNPage/>}/>
         <Route path="/hr" element={<HRPage/>}/>
+        <Route path="/coding/basics" element={<CodingBasicsPage/>}/>
       </Route>
     </Route>
     <Route path="*" element={<Navigate to="/" replace/>}/>
