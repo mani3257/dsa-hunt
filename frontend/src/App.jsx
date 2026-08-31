@@ -10,7 +10,11 @@ import CalendarPage from "./pages/CalendarPage";
 import RevisionPage from "./pages/RevisionPage";
 import CollectionPage from "./pages/CollectionPage";
 import ProfilePage from "./pages/ProfilePage";
-import CoreCSPage from "./pages/CoreCSPage";
+import DBMSPage from "./pages/DBMSPage";
+import OSPage from "./pages/OSPage";
+import OOPPage from "./pages/OOPPage";
+import CNPage from "./pages/CNPage";
+import HRPage from "./pages/HRPage";
 
 export default function App() {
   return <AuthProvider><Routes>
@@ -26,7 +30,11 @@ export default function App() {
         <Route path="/saved" element={<CollectionPage type="saved"/>}/>
         <Route path="/important" element={<CollectionPage type="important"/>}/>
         <Route path="/profile" element={<ProfilePage/>}/>
-        <Route path="/corecs" element={<CoreCSPage/>}/>
+        <Route path="/corecs/dbms" element={<DBMSPage/>}/>
+        <Route path="/corecs/os" element={<OSPage/>}/>
+        <Route path="/corecs/oop" element={<OOPPage/>}/>
+        <Route path="/corecs/cn" element={<CNPage/>}/>
+        <Route path="/hr" element={<HRPage/>}/>
       </Route>
     </Route>
     <Route path="*" element={<Navigate to="/" replace/>}/>

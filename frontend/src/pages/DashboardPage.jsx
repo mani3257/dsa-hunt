@@ -12,6 +12,7 @@ import {
   Map as MapIcon,
   MonitorCog,
   RotateCcw,
+  Users,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -24,6 +25,7 @@ import { SHEETS, PENDING_SHEETS } from "../utils/sheets";
 const CATEGORY_TILES = [
   { id: "dsa-sheets", label: "DSA Sheets", icon: Blocks, color: "coral" },
   { id: "core-cs", label: "Core CS", icon: Cpu, color: "mint" },
+  { id: "hr", label: "HR & Behavioral", icon: Users, color: "amber" },
   { id: "system-design", label: "System Design", icon: MonitorCog, color: "sky" },
 ];
 
@@ -210,30 +212,42 @@ export default function DashboardPage() {
         </div>
 
         <div className="sheet-card-grid">
-          <Link to="/corecs" className="sheet-card" style={{ textDecoration: "none" }}>
-            <div>
-              <div className="sheet-card-pending-head">
-                <h3>DBMS</h3>
-                <span className="pending-badge" style={{ background: "rgba(var(--accent-rgb),0.15)", color: "var(--accent)", borderColor: "var(--accent)" }}>36 Q&amp;As</span>
-              </div>
-              <p>Most asked DBMS interview questions.</p>
-            </div>
-          </Link>
           {[
-            { label: "Operating Systems", desc: "Most asked OS interview questions." },
-            { label: "Computer Networks", desc: "Most asked CN interview questions." },
-            { label: "OOP", desc: "Most asked OOP interview questions." },
+            { label: "DBMS", desc: "Keys, Normalization, SQL, ACID, Transactions.", count: "26 Q&As", to: "/corecs/dbms" },
+            { label: "OS", desc: "Processes, Scheduling, Deadlock, Memory.", count: "11 Q&As", to: "/corecs/os" },
+            { label: "OOP", desc: "Pillars, Inheritance, Polymorphism, Design.", count: "11 Q&As", to: "/corecs/oop" },
+            { label: "CN", desc: "OSI, TCP/IP, Protocols, HTTP, Handshake.", count: "13 Q&As", to: "/corecs/cn" },
           ].map((subject) => (
-            <div className="sheet-card sheet-card-pending" key={subject.label}>
+            <Link to={subject.to} className="sheet-card" style={{ textDecoration: "none" }} key={subject.label}>
               <div>
                 <div className="sheet-card-pending-head">
                   <h3>{subject.label}</h3>
-                  <span className="pending-badge">Coming soon</span>
+                  <span className="pending-badge" style={{ background: "rgba(var(--accent-rgb),0.15)", color: "var(--accent)", borderColor: "var(--accent)" }}>{subject.count}</span>
                 </div>
                 <p>{subject.desc}</p>
               </div>
-            </div>
+            </Link>
           ))}
+        </div>
+      </section>
+
+      <section className="sheet-library" id="hr">
+        <div className="panel-head">
+          <div>
+            <p className="eyebrow">INTERVIEW PREP</p>
+            <h2>HR & Behavioral Questions</h2>
+          </div>
+        </div>
+        <div className="sheet-card-grid">
+          <Link to="/hr" className="sheet-card" style={{ textDecoration: "none" }}>
+            <div>
+              <div className="sheet-card-pending-head">
+                <h3>HR Questions</h3>
+                <span className="pending-badge" style={{ background: "rgba(var(--accent-rgb),0.15)", color: "var(--accent)", borderColor: "var(--accent)" }}>25 Q&As</span>
+              </div>
+              <p>Tell me about yourself, strengths, weaknesses, goals, and more.</p>
+            </div>
+          </Link>
         </div>
       </section>
 
