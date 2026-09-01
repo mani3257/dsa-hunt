@@ -1,10 +1,11 @@
-import { useState } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { useContext, useState } from "react";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutGrid, ListChecks, Map as MapIcon, Database, Cpu,
   Layers, Network, Users, Code2, ChevronDown, PanelLeftClose,
-  PanelLeft, MonitorCog, BookOpen,
+  PanelLeft, MonitorCog, BookOpen, LogOut, User as UserIcon,
 } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
 const NAV = [
   { label: "Dashboard", icon: LayoutGrid, to: "/", end: true },
@@ -22,17 +23,22 @@ const NAV = [
   {
     label: "Basic Coding", icon: Code2,
     children: [
-      { label: "Strings & Numbers", icon: Code2, to: "/coding/basics" },
+      { label: "Strings & Numbers & Arrays", icon: Code2, to: "/coding/basics" },
     ],
   },
   { label: "HR & Behavioral", icon: Users, to: "/hr" },
-  { label: "System Design", icon: MonitorCog, to: "#", disabled: true },
+  {
+    label: "System Design", icon: MonitorCog,
+    children: [
+      { label: "Course Notes", icon: MonitorCog, to: "/system-design" },
+    ],
+  },
 ];
 
 function SideItem({ item, collapsed, level = 0 }) {
   const location = useLocation();
   const isChildActive = item.children?.some(c => location.pathname.startsWith(c.to));
-  const [open, setOpen] = useState(isChildActive);
+  const [open, setOpen] = useState(isChildActive || false);
 
   if (item.children) {
     return (
@@ -45,11 +51,8 @@ function SideItem({ item, collapsed, level = 0 }) {
           <item.icon size={18} className="sidebar-icon" />
           {!collapsed && <span className="sidebar-label">{item.label}</span>}
           {!collapsed && (
-            <ChevronDown
-              size={13}
-              className="sidebar-chevron"
-              style={{ transform: open ? "rotate(180deg)" : undefined }}
-            />
+            <ChevronDown size={13} className="sidebar-chevron"
+              style={{ transform: open ? "rotate(180deg)" : undefined }} />
           )}
         </button>
         {!collapsed && open && (
@@ -79,21 +82,30 @@ function SideItem({ item, collapsed, level = 0 }) {
       to={item.to}
       end={item.end}
       className={({ isActive }) =>
-        `sidebar-item${isActive ? " active" : ""}${item.disabled ? " disabled" : ""}${collapsed ? " collapsed" : ""}`
+        `sidebar-item${isActive ? " active" : ""}${collapsed ? " collapsed" : ""}`
       }
       title={collapsed ? item.label : undefined}
-      onClick={e => item.disabled && e.preventDefault()}
       style={{ paddingLeft: !collapsed && level > 0 ? "12px" : undefined }}
     >
       <item.icon size={level > 0 ? 15 : 18} className="sidebar-icon" />
       {!collapsed && <span className="sidebar-label">{item.label}</span>}
-      {!collapsed && item.disabled && <span className="sidebar-soon">soon</span>}
     </NavLink>
   );
 }
 
 export default function Sidebar() {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true); // collapsed by default
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  async function handleLogout() {
+    await logout();
+    navigate("/login");
+  }
+
+  const initials = user?.username
+    ? user.username.slice(0, 2).toUpperCase()
+    : "U";
 
   return (
     <aside className={`sidebar${collapsed ? " collapsed" : ""}`}>
@@ -103,6 +115,31 @@ export default function Sidebar() {
             <SideItem key={item.label} item={item} collapsed={collapsed} />
           ))}
         </nav>
+
+        {/* User account footer */}
+        <div className="sidebar-footer">
+          <NavLink
+            to="/profile"
+            className={({ isActive }) =>
+              `sidebar-user${isActive ? " active" : ""}${collapsed ? " collapsed" : ""}`
+            }
+            title={collapsed ? (user?.username || "Profile") : undefined}
+          >
+            <div className="sidebar-avatar">{initials}</div>
+            {!collapsed && (
+              <div className="sidebar-user-info">
+                <span className="sidebar-username">{user?.username || "User"}</span>
+                <span className="sidebar-useremail">{user?.email || ""}</span>
+              </div>
+            )}
+          </NavLink>
+
+          {!collapsed && (
+            <button className="sidebar-logout" onClick={handleLogout} title="Logout">
+              <LogOut size={15} />
+            </button>
+          )}
+        </div>
 
         <button
           className="sidebar-toggle"

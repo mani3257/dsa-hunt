@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { Layers, Search } from "lucide-react";
+import { useMemo, useRef, useState } from "react";
+import { Layers, Search, Copy, Check } from "lucide-react";
 
 const OOP_QA = [
   { id:1, cat:"Basics", q:"What is a Class and an Object?",
@@ -21,7 +21,7 @@ const OOP_QA = [
     a:"Method Overloading: same method name, different parameter list, in the same class. Resolved at compile time.\n\nMethod Overriding: subclass redefines a parent method with same signature. Resolved at runtime.",
     table:[["","Overloading","Overriding"],["Location","Same class","Child overrides parent"],["Parameters","Must differ","Must be same"],["Return type","Can differ","Must be same (or covariant)"],["Binding","Compile-time","Runtime"],["Polymorphism","Static","Dynamic"]] },
   { id:7, cat:"Concepts", q:"What is a Constructor? What is a Destructor?",
-    a:"Constructor: special method called automatically when an object is created. Same name as class, no return type.\n\nTypes: default, parameterized, copy constructor.\n\nDestructor: called when object is destroyed. In Java: GC handles it (finalize() deprecated). Python: __del__().",
+    a:"Constructor: special method called automatically when an object is created. Same name as class, no return type.\n\nTypes: default, parameterized, copy constructor.\n\nDestructor: called when object is destroyed. In Java: GC handles it. Python: __del__().",
     code:{ java:"class Person {\n  String name;\n  int age;\n\n  Person() { this.name = \"Unknown\"; }  // default\n\n  Person(String name, int age) {  // parameterized\n    this.name = name;\n    this.age = age;\n  }\n\n  Person(Person p) {  // copy\n    this.name = p.name;\n    this.age = p.age;\n  }\n}", python:"class Person:\n    def __init__(self, name='Unknown', age=0):\n        self.name = name\n        self.age = age\n\n    def __del__(self):\n        print(f'{self.name} object destroyed')\n\np = Person('Mani', 22)" } },
   { id:8, cat:"Concepts", q:"What is an Interface? What is an Abstract Class?",
     a:"Interface: a pure contract — only abstract methods (Java 8+ allows default/static). A class can implement multiple interfaces.\n\nAbstract Class: can have both abstract and concrete methods, instance variables, constructors. Single inheritance only.\n\nWhen to use: Interface for capability (Flyable, Serializable). Abstract class for IS-A with shared code.",
@@ -42,11 +42,45 @@ const OOP_QA = [
 const CATS = ["All","Basics","Pillars","Concepts"];
 const CAT_COLORS = { Basics:"#58a6ff", Pillars:"#3fb950", Concepts:"#a78bfa" };
 const STORAGE_KEY = "oop_mastered";
+const CODE_STORAGE_KEY = "oop_code_edits";
+
+function CopyBtn({ text }) {
+  const [copied, setCopied] = useState(false);
+  function copy() {
+    navigator.clipboard.writeText(text).then(() => { setCopied(true); setTimeout(() => setCopied(false), 1500); });
+  }
+  return (
+    <button className="code-copy-btn" onClick={copy} title="Copy code">
+      {copied ? <Check size={13}/> : <Copy size={13}/>}
+      {copied ? "Copied" : "Copy"}
+    </button>
+  );
+}
 
 function QACard({ item }) {
   const [open, setOpen] = useState(false);
   const [lang, setLang] = useState("java");
   const [mastered, setMastered] = useState(() => JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]").includes(item.id));
+  const taRef = useRef(null);
+
+  const hasCode = item.code && typeof item.code === "object";
+
+  const getEditKey = (l) => `${CODE_STORAGE_KEY}_${item.id}_${l}`;
+  const [code, setCode] = useState(() => {
+    if (!hasCode) return {};
+    return {
+      java: localStorage.getItem(getEditKey("java")) ?? item.code.java ?? "",
+      python: localStorage.getItem(getEditKey("python")) ?? item.code.python ?? "",
+    };
+  });
+
+  function handleCodeChange(e) {
+    const val = e.target.value;
+    setCode(prev => ({ ...prev, [lang]: val }));
+    localStorage.setItem(getEditKey(lang), val);
+    const ta = taRef.current;
+    if (ta) { ta.style.height = "auto"; ta.style.height = ta.scrollHeight + "px"; }
+  }
 
   function toggleMastered(e) {
     e.stopPropagation();
@@ -58,13 +92,12 @@ function QACard({ item }) {
     });
   }
 
-  const hasCode = item.code && typeof item.code === "object";
-  const codeSnippet = hasCode ? item.code[lang] : null;
+  const currentCode = hasCode ? (code[lang] ?? "") : "";
 
   return (
     <div className="corecs-card" style={{ borderLeft: mastered?"2px solid var(--success)":undefined }}>
       <button className="corecs-card-header" onClick={()=>setOpen(v=>!v)}>
-        <span className="corecs-card-num">{String(item.id).padStart(2,"0")}</span>
+        <span className="corecs-card-num">{String(item.id).padStart(2,"00")}</span>
         <span className="corecs-card-q">{item.q}</span>
         <span className="corecs-cat-badge" style={{color:CAT_COLORS[item.cat]||"#8b949e",borderColor:(CAT_COLORS[item.cat]||"#8b949e")+"44"}}>{item.cat}</span>
         <button className={`corecs-mastered-btn${mastered?" on":""}`} onClick={toggleMastered}>✓</button>
@@ -80,14 +113,20 @@ function QACard({ item }) {
         {item.table && (<div style={{overflowX:"auto"}}><table className="corecs-table"><thead><tr>{item.table[0].map((h,i)=><th key={i}>{h}</th>)}</tr></thead><tbody>{item.table.slice(1).map((row,i)=><tr key={i}>{row.map((cell,j)=><td key={j}>{cell}</td>)}</tr>)}</tbody></table></div>)}
         {hasCode && (
           <>
-            <div className="corecs-lang-toggle" style={{marginTop:10}}>
-              {["java","python"].map(l=>(
-                <button key={l} className={`corecs-lang-btn${lang===l?" active":""}`} onClick={e=>{e.stopPropagation();setLang(l);}}>
-                  {l.toUpperCase()}
-                </button>
-              ))}
+            <div style={{display:"flex",alignItems:"center",gap:8,marginTop:12,marginBottom:6}}>
+              <div className="corecs-lang-toggle" style={{marginTop:0}}>
+                {["java","python"].map(l=>(
+                  <button key={l} className={`corecs-lang-btn${lang===l?" active":""}`} onClick={e=>{e.stopPropagation();setLang(l);}}>
+                    {l==="java"?"Java":"Python"}
+                  </button>
+                ))}
+              </div>
+              <CopyBtn text={currentCode}/>
             </div>
-            {codeSnippet && <pre className="corecs-code">{codeSnippet}</pre>}
+            <div className="code-editor-wrap">
+              <textarea ref={taRef} className="code-editor-ta" value={currentCode} onChange={handleCodeChange}
+                spellCheck={false} rows={currentCode.split("\n").length}/>
+            </div>
           </>
         )}
       </div>
@@ -112,7 +151,7 @@ export default function OOPPage() {
   return (
     <div className="container collection">
       <div className="page-title">
-        <div><p className="eyebrow">CORE CS · OOP</p><h1>Object-Oriented Programming</h1><p>Pillars, Inheritance, Polymorphism, Design — {OOP_QA.length} questions. Toggle Java/Python per question.</p></div>
+        <div><p className="eyebrow">CORE CS · OOP</p><h1>Object-Oriented Programming</h1><p>Pillars, Inheritance, Polymorphism — {OOP_QA.length} questions. Edit code per question.</p></div>
         <Layers size={24}/>
       </div>
       <div className="corecs-stats">
