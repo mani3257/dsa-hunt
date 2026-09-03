@@ -3957,3 +3957,26 @@ a {
   flex-shrink: 0;
 }
 .sd-pdf-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── Profile avatar edit button ── */
+.profile-avatar-edit-btn {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--bg, #0a0806);
+  background: var(--accent);
+  color: #0a0806;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 700;
+  transition: transform 0.15s;
+  z-index: 2;
+}
+.profile-avatar-edit-btn:hover { transform: scale(1.12); }
+.profile-avatar-edit-btn:disabled { opacity: 0.6; cursor: default; }

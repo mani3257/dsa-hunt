@@ -103,9 +103,13 @@ export default function Sidebar() {
     navigate("/login");
   }
 
-  const initials = user?.name
-    ? user.name.slice(0, 2).toUpperCase()
-    : "U";
+  const initials = (user?.name || "U")
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map(p => p[0])
+    .join("")
+    .toUpperCase();
 
   return (
     <aside className={`sidebar${collapsed ? " collapsed" : ""}`}>
@@ -123,9 +127,14 @@ export default function Sidebar() {
             className={({ isActive }) =>
               `sidebar-user${isActive ? " active" : ""}${collapsed ? " collapsed" : ""}`
             }
-            title={collapsed ? (user?.username || "Profile") : undefined}
+            title={collapsed ? (user?.name || "Profile") : undefined}
           >
-            <div className="sidebar-avatar">{initials}</div>
+            <div className="sidebar-avatar">
+              {user?.avatarUrl
+                ? <img src={user.avatarUrl} alt={user.name} style={{width:"100%",height:"100%",objectFit:"cover",borderRadius:"inherit"}}/>
+                : initials
+              }
+            </div>
             {!collapsed && (
               <div className="sidebar-user-info">
                 <span className="sidebar-username">{user?.name || "User"}</span>

@@ -284,12 +284,15 @@ export default function DashboardPage() {
         </div>
 
         <div className="sheet-card-grid">
-          <div className="sheet-card sheet-card-future">
+          <Link to="/system-design" className="sheet-card" style={{ textDecoration: "none" }}>
             <div>
-              <h3>System Design Sheet</h3>
-              <p>Coming soon — LLD/HLD topics, tracked the same way as your DSA sheets.</p>
+              <div className="sheet-card-pending-head">
+                <h3>System Design Course</h3>
+                <span className="pending-badge" style={{ background: "rgba(var(--accent-rgb),0.15)", color: "var(--accent)", borderColor: "var(--accent)" }}>18 Topics</span>
+              </div>
+              <p>Requirements, Scalability, CAP, Microservices, Real-world problems & more.</p>
             </div>
-          </div>
+          </Link>
         </div>
       </section>
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Award, Bookmark, Check, ChevronRight, Flame, LogOut, Mail, Pencil, ShieldCheck, Sparkles, Star, UserRound } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -51,6 +51,9 @@ export default function ProfilePage() {
   const [saved, setSaved] = useState(false);
   const [stats, setStats] = useState(null);
   const [activity, setActivity] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState(user?.avatarUrl || "");
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const avatarInputRef = useRef(null);
 
   useEffect(() => {
     getStats().then(setStats).catch(() => {});
@@ -64,6 +67,31 @@ export default function ProfilePage() {
     .map((part) => part[0])
     .join("")
     .toUpperCase();
+
+  async function handleAvatarChange(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) { setError("Please select an image file."); return; }
+    if (file.size > 2 * 1024 * 1024) { setError("Image must be under 2MB."); return; }
+
+    setAvatarUploading(true);
+    setError("");
+    const reader = new FileReader();
+    reader.onload = async (ev) => {
+      const dataUrl = ev.target.result;
+      setAvatarPreview(dataUrl);
+      try {
+        await updateProfile({ name: (user?.name || "").trim(), avatarUrl: dataUrl });
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2000);
+      } catch (err) {
+        setError(err.response?.data?.error || "Unable to upload avatar.");
+      } finally {
+        setAvatarUploading(false);
+      }
+    };
+    reader.readAsDataURL(file);
+  }
 
   async function saveProfile(event) {
     event.preventDefault();
@@ -114,12 +142,28 @@ export default function ProfilePage() {
 
       <div className="profile-grid">
         <section className="profile-card profile-identity">
-          <div className="profile-avatar-wrap">
-            {user?.avatarUrl ? (
-              <img src={user.avatarUrl} alt="Profile" className="profile-avatar-image" />
+          <div className="profile-avatar-wrap" style={{ position: "relative", display: "inline-block" }}>
+            {(avatarPreview || user?.avatarUrl) ? (
+              <img src={avatarPreview || user.avatarUrl} alt="Profile" className="profile-avatar-image" />
             ) : (
               <div className="profile-avatar">{initials}</div>
             )}
+            {/* Edit avatar button */}
+            <button
+              className="profile-avatar-edit-btn"
+              onClick={() => avatarInputRef.current?.click()}
+              title="Change profile photo"
+              disabled={avatarUploading}
+            >
+              {avatarUploading ? "…" : <Pencil size={11} />}
+            </button>
+            <input
+              ref={avatarInputRef}
+              type="file"
+              accept="image/*"
+              style={{ display: "none" }}
+              onChange={handleAvatarChange}
+            />
           </div>
 
           <h2>{user?.name}</h2>

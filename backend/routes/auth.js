@@ -241,11 +241,21 @@ router.post("/login", authLimiter, async (req, res) => {
 router.patch("/profile", requireAuth, async (req, res) => {
   try {
     const name = String(req.body.name || "").trim();
+    const avatarUrl = req.body.avatarUrl !== undefined ? String(req.body.avatarUrl || "").trim() : undefined;
 
     if (name.length < 2 || name.length > 80) {
       return res.status(400).json({
         error: "Name must be between 2 and 80 characters",
       });
+    }
+
+    // If avatarUrl is a base64 data URL, validate size (max ~2MB)
+    if (avatarUrl && avatarUrl.startsWith("data:")) {
+      const base64Data = avatarUrl.split(",")[1] || "";
+      const sizeBytes = Math.ceil((base64Data.length * 3) / 4);
+      if (sizeBytes > 2 * 1024 * 1024) {
+        return res.status(400).json({ error: "Avatar image must be under 2MB" });
+      }
     }
 
     const user = await User.findById(req.user._id);
@@ -255,6 +265,7 @@ router.patch("/profile", requireAuth, async (req, res) => {
     }
 
     user.name = name;
+    if (avatarUrl !== undefined) user.avatarUrl = avatarUrl;
     await user.save();
 
     res.json({ user: safeUser(user) });
