@@ -103,8 +103,8 @@ export default function Sidebar() {
     navigate("/login");
   }
 
-  const initials = user?.username
-    ? user.username.slice(0, 2).toUpperCase()
+  const initials = user?.name
+    ? user.name.slice(0, 2).toUpperCase()
     : "U";
 
   return (
@@ -128,7 +128,7 @@ export default function Sidebar() {
             <div className="sidebar-avatar">{initials}</div>
             {!collapsed && (
               <div className="sidebar-user-info">
-                <span className="sidebar-username">{user?.username || "User"}</span>
+                <span className="sidebar-username">{user?.name || "User"}</span>
                 <span className="sidebar-useremail">{user?.email || ""}</span>
               </div>
             )}

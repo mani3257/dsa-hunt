@@ -3474,8 +3474,11 @@ a {
   line-height: 1.65;
   color: #e8ddd0;
   overflow-x: auto;
+  overflow-y: auto;
+  max-height: 340px;
   white-space: pre;
   margin: 10px 0;
+  display: block;
 }
 
 .corecs-table {
@@ -3801,6 +3804,9 @@ a {
   border-radius: 8px;
   overflow: hidden;
   border: 1px solid var(--line);
+  max-height: 340px;
+  overflow-y: auto;
+  overflow-x: auto;
 }
 
 .code-editor-ta {
@@ -3813,11 +3819,14 @@ a {
   padding: 12px 14px;
   border: none;
   outline: none;
-  resize: none;
-  overflow: hidden;
+  resize: vertical;
+  overflow: auto;
   display: block;
   min-height: 60px;
+  max-height: 340px;
+  white-space: pre;
   caret-color: var(--accent);
+  box-sizing: border-box;
 }
 
 .code-editor-ta::selection { background: rgba(234,88,12,0.25); }
