@@ -55,6 +55,11 @@ export default function ProfilePage() {
   const [avatarUploading, setAvatarUploading] = useState(false);
   const avatarInputRef = useRef(null);
 
+  // Keep preview in sync if user context updates (e.g. after reload)
+  useEffect(() => {
+    if (user?.avatarUrl) setAvatarPreview(user.avatarUrl);
+  }, [user?.avatarUrl]);
+
   useEffect(() => {
     getStats().then(setStats).catch(() => {});
     getActivity(140).then(setActivity).catch(() => {});

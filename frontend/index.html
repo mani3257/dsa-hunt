@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/logo-512.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="google-site-verification" content="89bFk86XmtS_NHbnRuOBnj0V-Qcnd6MFSXQ8nyEMWUA" />
 
@@ -17,15 +18,42 @@
     <meta property="og:description" content="Master coding interviews with curated DSA sheets (NeetCode 150, Blind 75, Striver A2Z), revision tracking, and consistency analytics." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://dsa-hunt.vercel.app" />
+    <meta property="og:image" content="https://dsa-hunt.vercel.app/logo-512.png" />
+    <meta property="og:image:width" content="512" />
+    <meta property="og:image:height" content="512" />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="DSA Hunt" />
     <meta name="twitter:description" content="Master coding interviews with curated DSA sheets, revision tracking, and consistency analytics." />
+    <meta name="twitter:image" content="https://dsa-hunt.vercel.app/logo-512.png" />
 
-    <!-- PWA basics -->
-    <meta name="theme-color" content="#ff6a2b" />
+    <!-- PWA -->
+    <meta name="theme-color" content="#ea580c" />
     <link rel="manifest" href="/manifest.json" />
+
+    <!-- JSON-LD structured data — tells Google site name + logo -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "DSA Hunt",
+      "alternateName": "DSA Hunt – Interview Tracker",
+      "url": "https://dsa-hunt.vercel.app",
+      "description": "Master coding interviews with curated DSA sheets, revision tracking, and consistency analytics.",
+      "publisher": {
+        "@type": "Organization",
+        "name": "DSA Hunt",
+        "url": "https://dsa-hunt.vercel.app",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://dsa-hunt.vercel.app/logo-512.png",
+          "width": 512,
+          "height": 512
+        }
+      }
+    }
+    </script>
   </head>
   <body>
     <div id="root"></div>
